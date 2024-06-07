@@ -1,144 +1,159 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 
-class HomeScreen extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  late List<bool> selected;
+class _LoginScreenState extends State<LoginScreen> {
+  bool _obscureText = true;
 
-  @override
-  void initState() {
-    super.initState();
-    selected = List.generate(preferences.length, (index) => false);
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('ChillConnect'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Welcome to ChillConnect!',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/background.jpeg'), // Add your background image here
+              fit: BoxFit.cover,
             ),
           ),
-          SizedBox(height: 20),
-          // Preferences chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: List.generate(preferences.length, (index) {
-                return PreferenceChip(
-                  label: preferences[index],
-                  onPressed: () {
-                    setState(() {
-                      selected[index] = !selected[index];
-                    });
-                  },
-                  isSelected: selected[index],
-                );
-              }),
-            ),
-          ),
-          SizedBox(height: 20),
-          // Text fields with prefixes
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'User Information',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person),
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.6),
+                      Colors.black.withOpacity(0.6),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
-                SizedBox(height: 10),
-                TextField(
-                  decoration: InputDecoration(
-                    prefixText: '+1',
-                    labelText: 'Phone Number',
-                    border: OutlineInputBorder(),
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(flex: 2), // Leave large space above "ChillConnect"
+                    const Text(
+                      'ChillConnect',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    TextField(
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.email, color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Email',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.lock, color: Colors.grey),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureText ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: _togglePasswordVisibility,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                      ),
+                      obscureText: _obscureText,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Simulate a successful login and navigate to the home screen
+                        Navigator.pushReplacementNamed(context, '/home');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Use backgroundColor instead of primary
+                        padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 16), // Increase horizontal padding
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: const SizedBox(
+                        width: double.infinity, // Button fills the available width
+                        child: Center(
+                          child: Text(
+                            'Login',
+                            style: TextStyle(fontSize: 18, color: Colors.white), // Text color is white
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'or continue with',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SignInButton(
+                          Buttons.Google,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 8), // Add space between buttons
+                        SignInButton(
+                          Buttons.Facebook,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 8), // Add space between buttons
+                        SignInButton(
+                          Buttons.Apple,
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                    const Spacer(), // Push everything to the top
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        "Don't have an account? Sign Up",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          SizedBox(height: 20),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/meetup');
-              },
-              child: Text('Create a Meetup'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<String> preferences = [
-    'Music',
-    'Books',
-    'Coding',
-    'Poems',
-    'Drawing',
-    'Photography',
-    'Swimming',
-    'Surfing',
-    // Add more preferences here
-  ];
-}
-
-class PreferenceChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-  final bool isSelected;
-
-  const PreferenceChip({
-    required this.label,
-    required this.onPressed,
-    required this.isSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.grey,
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 5,
-              spreadRadius: 1,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Text(
-          label,
-          style: TextStyle(color: Colors.white),
         ),
       ),
     );
