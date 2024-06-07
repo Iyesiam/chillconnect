@@ -92,7 +92,7 @@ class PreferenceChip extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.grey,
+          color: isSelected ? Colors.blue : Color.fromARGB(255, 137, 183, 196),
           borderRadius: BorderRadius.circular(20.0),
           boxShadow: [
             BoxShadow(
@@ -106,7 +106,7 @@ class PreferenceChip extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Text(
           label,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
         ),
       ),
     );
