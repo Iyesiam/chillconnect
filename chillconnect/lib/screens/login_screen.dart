@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_import, library_private_types_in_public_api, prefer_const_constructors
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
