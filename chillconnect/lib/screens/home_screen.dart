@@ -1,5 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages, use_key_in_widget_constructors, library_private_types_in_public_api, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +8,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late List<bool> selected;
+  int _selectedIndex = 0;
+  int selectedDayIndex = -1; // Initially no day selected
 
   @override
   void initState() {
@@ -17,8 +17,27 @@ class _HomeScreenState extends State<HomeScreen> {
     selected = List.generate(preferences.length, (index) => false);
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      switch (_selectedIndex) {
+        case 0:
+          // Already on HomeScreen, no navigation needed
+          break;
+        case 1:
+          Navigator.pushNamed(context, '/meetup');
+          break;
+        case 2:
+          Navigator.pushNamed(context, '/explore');
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    DateTime currentDate = DateTime.now();
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -39,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           CircleAvatar(
             backgroundImage: AssetImage('assets/profile.jpg'),
-            // Replace with user's profile image
           ),
           SizedBox(width: 16),
         ],
@@ -61,8 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 24),
               Text(
-                'November 2022',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+                DateFormat('dd MMM yyyy').format(currentDate),
+                style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
               SingleChildScrollView(
@@ -73,8 +91,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 24),
               Text(
-                'Our Favorites 🔥',
-                style: TextStyle(fontSize: 18, color: Colors.white,fontWeight: FontWeight.bold),
+                'Your Favorites 🔥',
+                style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
               Wrap(
@@ -98,32 +116,48 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 200,
                 width: double.infinity,
               ),
-              Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: Center(
-    child: ElevatedButton(
-      onPressed: () {
-        Navigator.pushNamed(context, '/meetup');
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Color.fromARGB(255, 78, 85, 85), // Background color
-        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-      ),
-      child: Text(
-        'Create a Meetup',
-        style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold), // Text color
-      ),
-    ),
-  ),
-),
-
             ],
           ),
         ),
       ),
+     bottomNavigationBar: Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(30),
+    child: BottomNavigationBar(
+      backgroundColor: Colors.grey[900],
+      items: <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Icon(Icons.home, color: Colors.white, size: 30),
+          ),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Icon(Icons.add_box_outlined, color: Colors.white, size: 30),
+          ),
+          label: 'Meetup',
+        ),
+        BottomNavigationBarItem(
+          icon: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Icon(Icons.explore, color: Colors.white, size: 30),
+          ),
+          label: 'Explore',
+        ),
+      ],
+      currentIndex: _selectedIndex,
+      selectedItemColor: const Color.fromARGB(255, 244, 246, 248),
+      onTap: _onItemTapped,
+      type: BottomNavigationBarType.fixed,
+      selectedLabelStyle: TextStyle(color: Colors.white),
+    ),
+  ),
+),
+
     );
   }
 
@@ -133,49 +167,49 @@ class _HomeScreenState extends State<HomeScreen> {
     DateTime currentDate = DateTime.now();
     DateTime startOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
 
-    // Loop through the weekdays and generate the date chips
     for (int i = 0; i < 7; i++) {
       DateTime date = startOfWeek.add(Duration(days: i));
       String formattedDate = DateFormat('dd MMM').format(date);
       String formattedDay = DateFormat('EEE').format(date);
 
-      weekdayChips.add(_buildDateChip(formattedDate, formattedDay, i == 0));
+      weekdayChips.add(_buildDateChip(formattedDate, formattedDay, i == selectedDayIndex, i));
     }
 
     return weekdayChips;
   }
 
-  Widget _buildDateChip(String date, String day, bool isSelected) {
+  Widget _buildDateChip(String date, String day, bool isSelected, int index) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
-      child: Chip(
-        backgroundColor: isSelected ? Colors.blue : Color.fromARGB(255, 53, 54, 54),
-        label: Column(
-          children: [
-            Text(
-              date,
-              style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              day,
-              style: TextStyle(color: isSelected ? Colors.white : Colors.white70),
-            ),
-          ],
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedDayIndex = index;
+          });
+        },
+        child: Chip(
+          backgroundColor: isSelected ? Colors.blue : Color.fromARGB(255, 53, 54, 54),
+          label: Column(
+            children: [
+              Text(
+                date,
+                style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                day,
+                style: TextStyle(color: isSelected ? Colors.white : Colors.white70),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
     );
   }
 
   List<String> preferences = [
-    'Music',
-    'Books',
-    'Coding',
-    'Poems',
-    'Drawing',
-    'Photography',
-    'Swimming',
-    'Surfing',
+    'Music', 'Books', 'Coding', 'Poems',
+    'Drawing', 'Photography', 'Swimming', 'Surfing',
   ];
 }
 

@@ -1,9 +1,9 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors
-
+// main.dart
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/meetup_screen.dart';
+import 'screens/explore_screen.dart'; // Add this import
 
 void main() {
   runApp(ChillConnectApp());
@@ -22,6 +22,7 @@ class ChillConnectApp extends StatelessWidget {
         '/': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(),
         '/meetup': (context) => MeetupScreen(),
+        '/explore': (context) => ExploreScreen(), // Add this route
       },
     );
   }
