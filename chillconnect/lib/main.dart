@@ -4,7 +4,7 @@ import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/meetup_screen.dart';
 import 'screens/explore_screen.dart'; // Add this import
-
+import 'screens/SignUpScreen.dart';
 void main() {
   runApp(ChillConnectApp());
 }
@@ -22,7 +22,8 @@ class ChillConnectApp extends StatelessWidget {
         '/': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(),
         '/meetup': (context) => MeetupScreen(),
-        '/explore': (context) => ExploreScreen(), // Add this route
+        '/explore': (context) => MapScreen(),
+        '/signup': (context) => SignUpScreen(), // Add this route
       },
     );
   }

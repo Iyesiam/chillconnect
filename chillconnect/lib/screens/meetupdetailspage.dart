@@ -1,6 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:chillconnect/screens/chat.dart';
 
-class MeetupDetailsPage extends StatelessWidget {
+class Comment {
+  final String text;
+  final String author;
+  final String date;
+  final String profilePicUrl;
+
+  Comment({
+    required this.text,
+    required this.author,
+    required this.date,
+    required this.profilePicUrl,
+  });
+}
+
+class MeetupDetailsPage extends StatefulWidget {
+  final String title;
+  final String description;
+  final String date;
+  final String time;
+  final String location;
+  final List<String> attendees;
+
+  MeetupDetailsPage({
+    required this.title,
+    required this.description,
+    required this.date,
+    required this.time,
+    required this.location,
+    required this.attendees,
+  });
+
+  @override
+  _MeetupDetailsPageState createState() => _MeetupDetailsPageState();
+}
+
+class _MeetupDetailsPageState extends State<MeetupDetailsPage> {
+  bool hasJoined = false;
+  List<Comment> comments = [];
+  final TextEditingController _commentController = TextEditingController();
+
+  void joinMeetup() {
+    setState(() {
+      widget.attendees.add('Current User'); // Add the current user to the attendees list
+      hasJoined = true;
+    });
+  }
+
+  void openChatroom() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatroomPage(comments: comments),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -8,113 +65,150 @@ class MeetupDetailsPage extends StatelessWidget {
         title: Text('Meetup Details'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Feature 1: Event Details
-            Text(
-              'Event Details',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Event Details',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  ListTile(
+                    title: Text('Meetup Title'),
+                    subtitle: Text(widget.title),
+                  ),
+                  ListTile(
+                    title: Text('Date'),
+                    subtitle: Text(widget.date),
+                  ),
+                  ListTile(
+                    title: Text('Time'),
+                    subtitle: Text(widget.time),
+                  ),
+                  ListTile(
+                    title: Text('Location'),
+                    subtitle: Text(widget.location),
+                  ),
+                  ListTile(
+                    title: Text('Description'),
+                    subtitle: Text(widget.description),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Attendees (${widget.attendees.length})',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: widget.attendees.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(widget.attendees[index]),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: hasJoined ? null : joinMeetup, // Disable the button if already joined
+                          child: Text('Join'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            onPressed: hasJoined ? openChatroom : null, // Enable only if joined
+                            child: Text('Open Chatroom'),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Navigate to the ExploreScreen and show the location
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ExploreScreen(
+                                  initialLocation: widget.location,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text('View on Map'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 10),
-            // Add detailed information about the meetup here
-            ListTile(
-              title: Text('Meetup Title'),
-              subtitle: Text('Title of the meetup event'),
-            ),
-            ListTile(
-              title: Text('Date'),
-              subtitle: Text('Date of the meetup event'),
-            ),
-            ListTile(
-              title: Text('Time'),
-              subtitle: Text('Time of the meetup event'),
-            ),
-            // Add more details as needed
-
-            // Feature 2: Attendee List
-            SizedBox(height: 20),
-            Text(
-              'Attendee List',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Display a list of attendees who have RSVP'd for the meetup
-
-            // Feature 3: RSVP Functionality
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Implement RSVP functionality
-              },
-              child: Text('RSVP'),
-            ),
-
-            // Feature 4: Map Integration
-            SizedBox(height: 20),
-            Text(
-              'Meetup Location',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Display a map with the meetup location pinned
-
-            // Feature 5: Discussion Section
-            SizedBox(height: 20),
-            Text(
-              'Discussion Section',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Provide a section for attendees to discuss the meetup
-
-            // Feature 6: Organizer Information
-            SizedBox(height: 20),
-            Text(
-              'Organizer Information',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Include information about the meetup organizer
-
-            // Feature 7: Related Meetups
-            SizedBox(height: 20),
-            Text(
-              'Related Meetups',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Show related meetups or events that users might be interested in
-
-            // Feature 8: Social Sharing
-            SizedBox(height: 20),
-            Text(
-              'Social Sharing',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Allow users to share the meetup details on social media platforms
-
-            // Feature 9: Event Reminders
-            SizedBox(height: 20),
-            Text(
-              'Event Reminders',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Provide an option for users to set reminders for the meetup
-
-            // Feature 10: Feedback and Rating
-            SizedBox(height: 20),
-            Text(
-              'Feedback and Rating',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            // Allow users to provide feedback and rate their experience after the meetup
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ExploreScreen extends StatelessWidget {
+  final String initialLocation;
+
+  ExploreScreen({required this.initialLocation});
+
+  @override
+  Widget build(BuildContext context) {
+    // Parse the location to extract latitude and longitude
+    final coordinates = initialLocation.split(',');
+    final latitude = double.parse(coordinates[0]);
+    final longitude = double.parse(coordinates[1]);
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Explore')),
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: (controller) {
+              var _mapController = controller;
+            },
+            initialCameraPosition: CameraPosition(
+              target: LatLng(latitude, longitude),
+              zoom: 12,
+            ),
+            markers: {
+              Marker(
+                markerId: MarkerId('meetupLocation'),
+                position: LatLng(latitude, longitude),
+                infoWindow: InfoWindow(
+                  title: 'Meetup Location',
+                  snippet: 'This is where the meetup is happening!',
+                ),
+              ),
+            },
+          ),
+          Positioned(
+            top: 16,
+            left: 16,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Here's",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                Text(
+                  'where It is Happening',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

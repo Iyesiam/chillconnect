@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscureText = true;
 
   void _togglePasswordVisibility() {
@@ -96,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        // Simulate a successful login and navigate to the home screen
+                        // Simulate a successful signup and navigate to the home screen
                         Navigator.pushReplacementNamed(context, '/home');
                       },
                       style: ElevatedButton.styleFrom(
@@ -110,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity, // Button fills the available width
                         child: Center(
                           child: Text(
-                            'Login',
+                            'Sign Up',
                             style: TextStyle(fontSize: 18, color: Colors.white), // Text color is white
                           ),
                         ),
@@ -144,10 +143,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Spacer(), // Push everything to the top
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/signup'); // Navigate to SignUpScreen
+                        // Navigate to the login screen
+                        Navigator.pushReplacementNamed(context, '/login_screen');
                       },
                       child: const Text(
-                        "Don't have an account? Sign Up",
+                        "Already have an account? Log In",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

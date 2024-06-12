@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:chillconnect/screens/meetupdetailspage.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,10 +10,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late List<bool> selected;
   int _selectedIndex = 0;
-  List<int> selectedDays = []; // List of selected days
+  List<int> selectedDays = [];
   List<String> selectedPreferences = [];
   bool isSearching = false;
   String searchQuery = "";
+
+  final List<String> preferences = [
+    'Books',
+    'Music',
+    'Technology',
+    'Art',
+    'Sports',
+    'Travel',
+    'Food',
+    'Health',
+    'Fashion',
+    'Business',
+  ];
 
   @override
   void initState() {
@@ -25,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedIndex = index;
       switch (_selectedIndex) {
         case 0:
-          // Already on HomeScreen, no navigation needed
           break;
         case 1:
           Navigator.pushNamed(context, '/meetup');
@@ -42,28 +55,50 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'title': 'Book Club',
         'description': 'Discussing the latest in literature.',
-        'day': 2,
+        'day': 5,
         'preferences': ['Books'],
+        'date': '10 Jun 2024',
+        'time': '5:00 PM',
       },
       {
         'title': 'Music Jam',
         'description': 'Jamming to new and classic tunes.',
-        'day': 4,
+        'day': 6,
         'preferences': ['Music'],
+        'date': '12 Jun 2024',
+        'time': '6:00 PM',
       },
-      // Add more meetups as needed
     ];
 
-    // Filter meetups based on selected days and preferences
     return meetups.where((meetup) {
       bool dayMatches = selectedDays.isEmpty || selectedDays.contains(meetup['day']);
       bool preferenceMatches = selectedPreferences.isEmpty ||
           meetup['preferences'].any((preference) => selectedPreferences.contains(preference));
-      bool searchMatches = searchQuery.isEmpty || 
+      bool searchMatches = searchQuery.isEmpty ||
           meetup['title'].toLowerCase().contains(searchQuery.toLowerCase()) ||
           meetup['description'].toLowerCase().contains(searchQuery.toLowerCase());
       return dayMatches && preferenceMatches && searchMatches;
     }).toList();
+  }
+
+  List<Widget> _buildWeekdayChips() {
+    final List<String> weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return List<Widget>.generate(7, (index) {
+      final isSelected = selectedDays.contains(index);
+      return ChoiceChip(
+        label: Text(weekdays[index]),
+        selected: isSelected,
+        onSelected: (selected) {
+          setState(() {
+            if (selected) {
+              selectedDays.add(index);
+            } else {
+              selectedDays.remove(index);
+            }
+          });
+        },
+      );
+    });
   }
 
   @override
@@ -105,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             : Text(
                 "Home",
-                style: TextStyle(color: Colors.white), // Set the text color to white
+                style: TextStyle(color: Colors.white),
               ),
         actions: [
           if (!isSearching)
@@ -130,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'Hey, Naina 👋',
+                'Hey, Natasha 👋',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               SizedBox(height: 8),
@@ -186,30 +221,51 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: _getRecommendedMeetups().map((meetup) {
-                    return Container(
-                      margin: EdgeInsets.only(right: 16.0),
-                      width: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[850],
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            meetup['title']!,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => MeetupDetailsPage(
+      title: 'Example Meetup',
+      description: 'This is a sample description.',
+      date: '2024-06-20',
+      time: '10:00 AM',
+      location: 'Example Location',
+      attendees: ['Attendee 1', 'Attendee 2'],
+    ),
+  ),
+);
+
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(right: 16.0),
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[850],
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                meetup['title'],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                meetup['description'],
+                                style: TextStyle(fontSize: 14, color: Colors.white70),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 8.0),
-                          Text(
-                            meetup['description']!,
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ],
+                        ),
                       ),
                     );
                   }).toList(),
@@ -220,135 +276,89 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BottomNavigationBar(
-            backgroundColor: Colors.grey[900],
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Icon(Icons.home, color: Colors.white, size: 30),
-                ),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Icon(Icons.add_box_outlined, color: Colors.white, size: 30),
-                ),
-                label: 'Meetup',
-              ),
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Icon(Icons.explore, color: Colors.white, size: 30),
-                ),
-                label: 'Explore',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: const Color.fromARGB(255, 244, 246, 248),
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed,
-            selectedLabelStyle: TextStyle(color: Colors.white),
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20)
+            ),
+            gradient: LinearGradient(
+        colors: [Color.fromARGB(255, 14, 14, 14), Color.fromARGB(255, 14, 14, 14)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+            ),
+            child: BottomNavigationBar(
+        backgroundColor: Colors.transparent,
+        items: [
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Icon(Icons.home, color: Colors.white, size: 30),
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Icon(Icons.add_box_outlined, color: Colors.white, size: 30),
+            ),
+            label: 'Meetup',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Icon(Icons.explore, color: Colors.white, size: 30),
+            ),
+            label: 'Explore',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        onTap: _onItemTapped,
+        elevation: 5,
+            ),
           ),
         ),
       ),
+
     );
   }
-
-  List<Widget> _buildWeekdayChips() {
-    List<Widget> weekdayChips = [];
-
-    DateTime currentDate = DateTime.now();
-    DateTime startOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
-
-    for (int i = 0; i < 7; i++) {
-      DateTime date = startOfWeek.add(Duration(days: i));
-      String formattedDate = DateFormat('dd MMM').format(date);
-      String formattedDay = DateFormat('EEE').format(date);
-
-      weekdayChips.add(_buildDateChip(formattedDate, formattedDay, selectedDays.contains(i), i));
-    }
-
-    return weekdayChips;
-  }
-
-  Widget _buildDateChip(String date, String day, bool isSelected, int index) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            if (isSelected) {
-              selectedDays.remove(index);
-            } else {
-              selectedDays.add(index);
-            }
-          });
-        },
-        child: Chip(
-          backgroundColor: isSelected ? Colors.blue : Color.fromARGB(255, 53, 54, 54),
-          label: Column(
-            children: [
-              Text(
-                date,
-                style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                day,
-                style: TextStyle(color: isSelected ? Colors.white : Colors.white70),
-              ),
-            ],
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        ),
-      ),
-    );
-  }
-
-  List<String> preferences = [
-    'Music', 'Books', 'Coding', 'Poems',
-    'Drawing', 'Photography', 'Swimming', 'Surfing',
-  ];
 }
 
 class PreferenceChip extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
   final bool isSelected;
+  final VoidCallback onPressed;
 
-  const PreferenceChip({
+  PreferenceChip({
     required this.label,
-    required this.onPressed,
     required this.isSelected,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Color.fromARGB(255, 49, 50, 50),
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 10,
-              spreadRadius: 1,
-              offset: Offset(0, 5),
-            ),
-          ],
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-        child: Text(
-          label,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        onPressed();
+      },
+      selectedColor: Colors.blue,
+      backgroundColor: const Color.fromARGB(255, 9, 9, 9),
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : Color.fromARGB(179, 253, 250, 250),
+        fontWeight: FontWeight.bold,
       ),
     );
   }
