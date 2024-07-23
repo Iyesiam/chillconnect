@@ -7,7 +7,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late List<bool> selected;
   int _selectedIndex = 0;
   List<int> selectedDays = [];
@@ -28,10 +28,35 @@ class _HomeScreenState extends State<HomeScreen> {
     'Business',
   ];
 
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
   @override
   void initState() {
     super.initState();
     selected = List.generate(preferences.length, (index) => false);
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    ));
   }
 
   void _onItemTapped(int index) {
@@ -105,6 +130,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     DateTime currentDate = DateTime.now();
 
+    // Start animations
+    if (isSearching) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -124,24 +156,27 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
         title: isSearching
-            ? TextField(
-                autofocus: true,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Search meetups...",
-                  hintStyle: TextStyle(color: Colors.white70),
-                  border: InputBorder.none,
-                ),
-                onChanged: (query) {
-                  setState(() {
-                    searchQuery = query;
-                  });
-                },
-              )
+            ? FadeTransition(
+          opacity: _fadeAnimation,
+          child: TextField(
+            autofocus: true,
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: "Search meetups...",
+              hintStyle: TextStyle(color: Colors.white70),
+              border: InputBorder.none,
+            ),
+            onChanged: (query) {
+              setState(() {
+                searchQuery = query;
+              });
+            },
+          ),
+        )
             : Text(
-                "Home",
-                style: TextStyle(color: Colors.white),
-              ),
+          "Home",
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           if (!isSearching)
             IconButton(
@@ -217,58 +252,60 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _getRecommendedMeetups().map((meetup) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => MeetupDetailsPage(
-      title: 'Example Meetup',
-      description: 'This is a sample description.',
-      date: '2024-06-20',
-      time: '10:00 AM',
-      location: 'Example Location',
-      attendees: ['Attendee 1', 'Attendee 2'],
-    ),
-  ),
-);
-
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(right: 16.0),
-                        width: 200,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[850],
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                meetup['title'],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+              SlideTransition(
+                position: _slideAnimation,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _getRecommendedMeetups().map((meetup) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MeetupDetailsPage(
+                                title: meetup['title'],
+                                description: meetup['description'],
+                                date: meetup['date'],
+                                time: meetup['time'],
+                                location: 'Example Location',
+                                attendees: ['Attendee 1', 'Attendee 2'],
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 16.0),
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[850],
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  meetup['title'],
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                meetup['description'],
-                                style: TextStyle(fontSize: 14, color: Colors.white70),
-                              ),
-                            ],
+                                SizedBox(height: 8),
+                                Text(
+                                  meetup['description'],
+                                  style: TextStyle(fontSize: 14, color: Colors.white70),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
             ],
@@ -280,57 +317,56 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
-        bottomLeft: Radius.circular(20),
-        bottomRight: Radius.circular(20)
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
             ),
             gradient: LinearGradient(
-        colors: [Color.fromARGB(255, 14, 14, 14), Color.fromARGB(255, 14, 14, 14)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
+              colors: [Color.fromARGB(255, 14, 14, 14), Color.fromARGB(255, 14, 14, 14)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
             child: BottomNavigationBar(
-        backgroundColor: Colors.transparent,
-        items: [
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Icon(Icons.home, color: Colors.white, size: 30),
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Icon(Icons.add_box_outlined, color: Colors.white, size: 30),
-            ),
-            label: 'Meetup',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Icon(Icons.explore, color: Colors.white, size: 30),
-            ),
-            label: 'Explore',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        onTap: _onItemTapped,
-        elevation: 5,
+              backgroundColor: Colors.transparent,
+              items: [
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Icon(Icons.home, color: Colors.white, size: 30),
+                  ),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Icon(Icons.add_box_outlined, color: Colors.white, size: 30),
+                  ),
+                  label: 'Meetup',
+                ),
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Icon(Icons.explore, color: Colors.white, size: 30),
+                  ),
+                  label: 'Explore',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.white,
+              unselectedItemColor: Colors.white70,
+              onTap: _onItemTapped,
+              elevation: 5,
             ),
           ),
         ),
       ),
-
     );
   }
 }
@@ -348,17 +384,21 @@ class PreferenceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        onPressed();
-      },
-      selectedColor: Colors.blue,
-      backgroundColor: const Color.fromARGB(255, 9, 9, 9),
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Color.fromARGB(179, 253, 250, 250),
-        fontWeight: FontWeight.bold,
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (selected) {
+          onPressed();
+        },
+        selectedColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 9, 9, 9),
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : Color.fromARGB(179, 253, 250, 250),
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

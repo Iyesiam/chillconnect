@@ -1,4 +1,3 @@
-import 'package:chillconnect/screens/meetupdetailspage.dart';
 import 'package:flutter/material.dart';
 
 class ChatroomPage extends StatefulWidget {
@@ -14,6 +13,7 @@ class _ChatroomPageState extends State<ChatroomPage> {
   List<Comment> filteredComments = [];
   TextEditingController _searchController = TextEditingController();
   TextEditingController _commentController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -43,6 +43,11 @@ class _ChatroomPageState extends State<ChatroomPage> {
         ));
         _commentController.clear();
         filteredComments = widget.comments; // Update filtered comments
+
+        // Scroll to the bottom of the list
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        });
       });
     }
   }
@@ -51,7 +56,13 @@ class _ChatroomPageState extends State<ChatroomPage> {
   void dispose() {
     _searchController.dispose();
     _commentController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  String _formatDate(String dateString) {
+    DateTime dateTime = DateTime.parse(dateString);
+    return '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')} ${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 
   @override
@@ -75,6 +86,7 @@ class _ChatroomPageState extends State<ChatroomPage> {
           ),
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: filteredComments.length,
               itemBuilder: (context, index) {
                 final comment = filteredComments[index];
@@ -89,7 +101,7 @@ class _ChatroomPageState extends State<ChatroomPage> {
                       Text(comment.text),
                       SizedBox(height: 5),
                       Text(
-                        comment.date,
+                        _formatDate(comment.date),
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
@@ -122,4 +134,18 @@ class _ChatroomPageState extends State<ChatroomPage> {
       ),
     );
   }
+}
+
+class Comment {
+  final String text;
+  final String author;
+  final String date;
+  final String profilePicUrl;
+
+  Comment({
+    required this.text,
+    required this.author,
+    required this.date,
+    required this.profilePicUrl,
+  });
 }

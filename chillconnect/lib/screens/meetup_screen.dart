@@ -17,7 +17,7 @@ class _MeetupScreenState extends State<MeetupScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   int _selectedIndex = 1;
-  List<Map<String, String>> _meetups = []; // List to store meetups
+  List<Map<String, String>> _meetups = [];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -27,7 +27,7 @@ class _MeetupScreenState extends State<MeetupScreen> {
           Navigator.pushNamed(context, '/home');
           break;
         case 1:
-          // Already on MeetupScreen, no navigation needed
+        // Already on MeetupScreen, no navigation needed
           break;
         case 2:
           Navigator.pushNamed(context, '/explore');
@@ -70,7 +70,7 @@ class _MeetupScreenState extends State<MeetupScreen> {
           'title': _meetupTitle,
           'description': _meetupDescription,
           'location': _meetupLocation,
-          'date': _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
+          'date': _selectedDate != null ? DateFormat('dd MMM yyyy').format(_selectedDate!) : '',
           'time': _selectedTime != null ? _selectedTime!.format(context) : ''
         });
         _titleController.clear();
@@ -88,73 +88,70 @@ class _MeetupScreenState extends State<MeetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Dark Grey Background
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Color.fromARGB(0, 254, 253, 253),
         elevation: 0,
         title: Text(
           'Create a Meetup',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ), // White Text
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Display created meetups
             _meetups.isNotEmpty
                 ? SizedBox(
-                    height: 200,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _meetups.map((meetup) {
-                          return Container(
-                            margin: EdgeInsets.only(right: 16.0),
-                            width: 200,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[850],
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            padding: EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  meetup['title']!,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(height: 8.0),
-                                Text(
-                                  meetup['description']!,
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                                SizedBox(height: 8.0),
-                                Text(
-                                  'Location: ${meetup['location']}',
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                                SizedBox(height: 8.0),
-                                Text(
-                                  'Date: ${meetup['date']}',
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                                SizedBox(height: 8.0),
-                                Text(
-                                  'Time: ${meetup['time']}',
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+              height: 200,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _meetups.map((meetup) {
+                    return Container(
+                      margin: EdgeInsets.only(right: 16.0),
+                      width: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[850],
+                        borderRadius: BorderRadius.circular(20.0),
                       ),
-                    ),
-                  )
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            meetup['title']!,
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8.0),
+                          Text(
+                            meetup['description']!,
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          SizedBox(height: 8.0),
+                          Text(
+                            'Location: ${meetup['location']}',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          SizedBox(height: 8.0),
+                          Text(
+                            'Date: ${meetup['date']}',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          SizedBox(height: 8.0),
+                          Text(
+                            'Time: ${meetup['time']}',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            )
                 : Container(),
-            SizedBox(height: 20), // Space between meetups and form fields
+            SizedBox(height: 20),
             Form(
               key: _formKey,
               child: Column(
@@ -162,12 +159,12 @@ class _MeetupScreenState extends State<MeetupScreen> {
                 children: <Widget>[
                   TextFormField(
                     controller: _titleController,
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // White Text
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     decoration: InputDecoration(
                       labelText: 'Meetup Title',
-                      labelStyle: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold), // White Text with 70% opacity
+                      labelStyle: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: Color.fromARGB(255, 26, 26, 26), // Grey Background
+                      fillColor: Color.fromARGB(255, 26, 26, 26),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
                         borderSide: BorderSide.none,
@@ -186,12 +183,12 @@ class _MeetupScreenState extends State<MeetupScreen> {
                   SizedBox(height: 16),
                   TextFormField(
                     controller: _descriptionController,
-                    style: TextStyle(color: Colors.white), // White Text
+                    style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Meetup Description',
-                      hintStyle: TextStyle(color: Colors.white70), // White Text with 70% opacity
+                      hintStyle: TextStyle(color: Colors.white70),
                       filled: true,
-                      fillColor: Color.fromARGB(255, 22, 22, 22), // Grey Background
+                      fillColor: Color.fromARGB(255, 22, 22, 22),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
                         borderSide: BorderSide.none,
@@ -207,22 +204,22 @@ class _MeetupScreenState extends State<MeetupScreen> {
                     onSaved: (value) {
                       _meetupDescription = value!;
                     },
-                    maxLines: 5, // Make the description field larger
+                    maxLines: 5,
                   ),
                   SizedBox(height: 16),
                   TextFormField(
                     controller: _locationController,
-                    style: TextStyle(color: Colors.white), // White Text
+                    style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Meetup Location',
-                      hintStyle: TextStyle(color: Colors.white70), // White Text with 70% opacity
+                      hintStyle: TextStyle(color: Colors.white70),
                       filled: true,
-                      fillColor: Color.fromARGB(255, 22, 22, 22), // Grey Background
+                      fillColor: Color.fromARGB(255, 22, 22, 22),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), // Adjust padding to position the hint text properly
+                      contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
                       prefixIcon: Icon(Icons.location_on, color: Colors.white70),
                     ),
                     validator: (value) {
@@ -251,7 +248,7 @@ class _MeetupScreenState extends State<MeetupScreen> {
                           child: Text(
                             _selectedDate == null
                                 ? 'Select Date'
-                                : DateFormat('yyyy-MM-dd').format(_selectedDate!),
+                                : DateFormat('dd MMM yyyy').format(_selectedDate!),
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -282,8 +279,8 @@ class _MeetupScreenState extends State<MeetupScreen> {
                     child: ElevatedButton(
                       onPressed: _submitMeetup,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF1D68E3), // Blue Button
-                        foregroundColor: Colors.white, // White Text
+                        backgroundColor: Color(0xFF1D68E3),
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
